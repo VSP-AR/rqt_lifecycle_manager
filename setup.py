@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'test_cli = rqt_lifecycle_manager.test_cli:main',
         ],
     },
 )
