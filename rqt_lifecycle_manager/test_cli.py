@@ -1,31 +1,36 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
-from lifecycle_msgs.srv import GetState
 from lifecycle_msgs.msg import TransitionEvent
-from ros2node.api import get_node_names
+from ros2lifecycle.api import get_node_names, call_get_states
+from ros2node.api import get_absolute_node_name
 
 class NodeListNode(Node):
     def __init__(self):
         super().__init__('node_list_node')
-        self.lifecyle_node_states = {}
+        self.lifecycle_node_states = {}
 
     def check_if_lifecycle_node(self, node_name):
-        client = self.create_client(GetState, f'/{node_name}/get_state')
-        ready = client.wait_for_service(timeout_sec=3.0)
-        if not ready:
-            self.get_logger().info(f'{node_name} is not a lifecycle node.')
+        self.get_logger().info(f'Checking if {node_name} is a lifecycle node.')
+        absolute_node_name = get_absolute_node_name(node_name)
+        self.get_logger().info(f'Absolute node name: {absolute_node_name}')
+        node_names = get_node_names(node=self, include_hidden_nodes=True)
+        self.get_logger().info(f'List of node names: {[n.full_name for n in node_names]}')
+
+        if absolute_node_name not in {n.full_name for n in node_names}:
             return False
 
-        request = GetState.Request()
-        future = client.call_async(request)
-        rclpy.spin_until_future_complete(self, future, timeout_sec=3.0)
-        
-        if future.result() is not None:
-            self.get_logger().info(f'{node_name} is a lifecycle node.')
+        self.get_logger().info(f'{absolute_node_name} is a node.')
+        states = call_get_states(node=self, node_names=[absolute_node_name])
+        self.get_logger().info(f'Node states: {states}')
+        state = states.get(absolute_node_name)
+        self.get_logger().info(f'Node state: {state}')
+
+        if state and not isinstance(state, Exception):
+            self.get_logger().info(f'{absolute_node_name} is a lifecycle node.')
             return True
         else:
-            self.get_logger().info(f'Failed to get state for {node_name}.')
+            self.get_logger().info(f'{absolute_node_name} is not a lifecycle node.')
             return False
 
     def create_lifecycle_subscriber(self, node_name):
@@ -38,8 +43,8 @@ class NodeListNode(Node):
         )
 
     def transition_event_callback(self, node_name, msg):
-        self.lifecyle_node_states[node_name] = msg
-        self.get_logger().info(f'Node {node_name} transitioned: {msg.transition.id}')
+        self.lifecycle_node_states[node_name] = msg
+        self.get_logger().info(f'Node {node_name} transitioned: {msg.transition.label}')
 
 def main(args=None):
     rclpy.init(args=args)
