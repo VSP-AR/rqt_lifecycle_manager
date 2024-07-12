@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>RosLifecycleManager</class>
+ <widget class="QWidget" name="RosLifecycleManager"> <!-- Changed QDialog to QWidget -->
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Lifecycle Manager</string>
   </property>
   <widget class="QGroupBox" name="groupLifecyleNodeList">
    <property name="geometry">
@@ -48,7 +48,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="pushRefresh">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -78,7 +78,7 @@
     <enum>QGraphicsView::AnchorViewCenter</enum>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushConfugureObj">
+  <widget class="QPushButton" name="pushConfigureObj">
    <property name="geometry">
     <rect>
      <x>230</x>

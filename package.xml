@@ -1,21 +1,27 @@
-<?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
-<package format="3">
+<package format="2">
   <name>rqt_lifecycle_manager</name>
   <version>0.0.0</version>
   <description>rqt_lifecycle_manager provides GUI plugin for visulazing lifecycle node state and change it</description>
-  <maintainer email="vishnu.pbhat93@gmail.com">ipa-vsp</maintainer>
+
+  <maintainer email="vishnu.pbhat93@gmail.com">Vishnu</maintainer>
+
   <license>BSD</license>
+  <url type="website">http://wiki.ros.org</url>
+  <url type="repository">https://github.com/ipa-vsp/rqt_lifecycle_manager</url>
+  <url type="bugtracker">https://github.com/ipa-vsp/rqt_lifecycle_manager/issues</url>
 
-  <depend>rqt_gui</depend>
-  <depend>rqt_gui_py</depend>
+  <author email="vishnu.pbhat93@gmail.com">Vishnu</author>
 
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>python_qt_binding</exec_depend>
+  <exec_depend version_gte="1.1.2">qt_dotgraph</exec_depend>
+  <exec_depend>rqt_gui</exec_depend>
+  <exec_depend>rqt_gui_py</exec_depend>
+
   <test_depend>python3-pytest</test_depend>
 
   <export>
     <build_type>ament_python</build_type>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
 </package>
