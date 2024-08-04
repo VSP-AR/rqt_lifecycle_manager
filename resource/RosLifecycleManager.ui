@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>RosLifecycleManager</class>
- <widget class="QWidget" name="RosLifecycleManager"> <!-- Changed QDialog to QWidget -->
+ <widget class="QWidget" name="RosLifecycleManager">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
-    <height>400</height>
+    <width>1007</width>
+    <height>679</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -67,8 +67,8 @@
     <rect>
      <x>230</x>
      <y>110</y>
-     <width>311</width>
-     <height>271</height>
+     <width>761</width>
+     <height>551</height>
     </rect>
    </property>
    <property name="renderHints">
@@ -154,13 +154,6 @@
    </property>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>InteractiveGraphicsView</class>
-   <extends>QGraphicsView</extends>
-   <header>rqt_graph.interactive_graphics_view</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
