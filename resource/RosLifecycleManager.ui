@@ -62,7 +62,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="InteractiveGraphicsView" name="graphicsViewObj">
+  <widget class="QGraphicsView" name="graphicsViewObj">
    <property name="geometry">
     <rect>
      <x>230</x>
