@@ -7,4 +7,5 @@ Currently, has minimal functionality to `configure`, `activate`, `deactivate`, `
 ### Todo
 - [ ] Improve UI
 - [ ] More lifecycle states and transitions support
+- [ ] Get available transitions from the node
 - [ ] Fix trasitioning issues in UI display. 

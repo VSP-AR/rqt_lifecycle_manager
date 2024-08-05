@@ -122,22 +122,12 @@ class ZoomableGraphicsView(QGraphicsView):
         self.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
 
     def wheelEvent(self, event):
-        zoomInFactor = 1.25
-        zoomOutFactor = 1 / zoomInFactor
+        zoom_in_factor = 1.25
+        zoom_out_factor = 1 / zoom_in_factor
 
         if event.angleDelta().y() > 0:
-            zoomFactor = zoomInFactor
-            self._zoom += 1
+            zoom_factor = zoom_in_factor
         else:
-            zoomFactor = zoomOutFactor
-            self._zoom -= 1
+            zoom_factor = zoom_out_factor
 
-        if self._zoom > 0:
-            self.scale(zoomFactor, zoomFactor)
-        elif self._zoom == 0:
-            self.resetTransform()
-        else:
-            self._zoom = 0
-
-        event.accept()
-
+        self.scale(zoom_factor, zoom_factor)
