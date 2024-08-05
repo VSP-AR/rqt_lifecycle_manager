@@ -102,7 +102,7 @@ class LifecycleDrawing:
 
     def pil2pixmap(self, image):
         image = image.convert("RGBA")
-        data = image.tobytes("raw", "RGBA")
+        data = image.tobytes("raw", "BGRA")
         qimage = QImage(data, image.width, image.height, QImage.Format_RGB32)
         pixmap = QPixmap.fromImage(qimage)
         return pixmap

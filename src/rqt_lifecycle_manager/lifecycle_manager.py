@@ -154,7 +154,7 @@ class RosLifecycleManager(Plugin):
 
     def shutdown_plugin(self):
         self._node.destroy_node()
-        rclpy.shutdown()
+        # rclpy.shutdown()
 
     def save_settings(self, plugin_settings, instance_settings):
         pass

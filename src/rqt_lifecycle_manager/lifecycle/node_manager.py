@@ -84,7 +84,7 @@ class LifecycleNodeListNodeManager:
             'activate': Transition.TRANSITION_ACTIVATE,
             'deactivate': Transition.TRANSITION_DEACTIVATE,
             'cleanup': Transition.TRANSITION_CLEANUP,
-            'shutdown': Transition.TRANSITION_ACTIVE_SHUTDOWN, 
+            'shutdown': Transition.TRANSITION_INACTIVE_SHUTDOWN, 
             'destroy': Transition.TRANSITION_DESTROY
         }
         return transition_map.get(label.lower())
