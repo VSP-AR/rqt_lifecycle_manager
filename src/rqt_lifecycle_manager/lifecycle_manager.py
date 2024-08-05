@@ -10,6 +10,7 @@ from python_qt_binding.QtCore import Qt
 from python_qt_binding.QtWidgets import QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QListWidget, QListWidgetItem
 
 from .interactive_graphics_view import ZoomableGraphicsView
+from .lifecycle.node_manager import LifecycleNodeListNodeManager
 
 import rclpy
 from rclpy.node import Node
@@ -23,7 +24,7 @@ class RosLifecycleManager(Plugin):
         self.setObjectName('LifecycleManagerPlugin')
 
         self._node = rclpy.create_node('lifecycle_manager_plugin')
-        self._logger = self._node.get_logger().get_child('rqt_lifecycle_manager.ros_graph.LifecycleManagerPlugin')
+        self._logger = self._node.get_logger().get_child('rqt_lifecycle_manager')
 
         self._widget = QWidget()
 
@@ -52,6 +53,9 @@ class RosLifecycleManager(Plugin):
 
         self.scene = self.graphicsViewObj._scene
         self.draw_state_machine()
+        
+        # Initialize the node manager
+        self.node_manager = LifecycleNodeListNodeManager(self._node, self._logger)
 
     def draw_state_machine(self):
         self.scene.clear()
@@ -118,9 +122,10 @@ class RosLifecycleManager(Plugin):
 
     def _refresh_lc_node_list(self):
         # Dummy implementation for refreshing the node list
-        self.node_list = ['node1', 'node2', 'node3']
+        self.node_list = self.node_manager.list_lifecycle_nodes()
         self._widget.lifecycleNodeList.clear()
         for node_name in self.node_list:
+            print(f'Adding node to the list {node_name}')
             item = QListWidgetItem(node_name)
             self._widget.lifecycleNodeList.addItem(item)
         
@@ -138,35 +143,35 @@ class RosLifecycleManager(Plugin):
         if node_name:
             self._node.get_logger().info(f'Configuring {node_name}')
             self.draw_state_machine()
-            # Implement lifecycle transition to configure state here
+            self.node_manager.set_lifecycle_state(node_name, transition_label='configure')
 
     def _activate_lc_node(self):
         node_name = self.get_selected_node()
         if node_name:
             self._node.get_logger().info(f'Activating {node_name}')
             self.draw_state_machine()
-            # Implement lifecycle transition to activate state here
+            self.node_manager.set_lifecycle_state(node_name, transition_label='activate')
 
     def _deactivate_lc_node(self):
         node_name = self.get_selected_node()
         if node_name:
             self._node.get_logger().info(f'Deactivating {node_name}')
             self.draw_state_machine()
-            # Implement lifecycle transition to deactivate state here
+            self.node_manager.set_lifecycle_state(node_name, transition_label='deactivate')
 
     def _shutdown_lc_node(self):
         node_name = self.get_selected_node()
         if node_name:
             self._node.get_logger().info(f'Shutting down {node_name}')
             self.draw_state_machine()
-            # Implement lifecycle transition to shutdown state here
+            self.node_manager.set_lifecycle_state(node_name, transition_label='shutdown')
 
     def _cleanup_lc_node(self):
         node_name = self.get_selected_node()
         if node_name:
             self._node.get_logger().info(f'Cleaning up {node_name}')
             self.draw_state_machine()
-            # Implement lifecycle transition to cleanup state here
+            self.node_manager.set_lifecycle_state(node_name, transition_label='cleanup')
 
     def shutdown_plugin(self):
         self._node.destroy_node()
