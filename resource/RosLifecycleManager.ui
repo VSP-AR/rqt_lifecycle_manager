@@ -6,153 +6,118 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1007</width>
-    <height>679</height>
+    <width>802</width>
+    <height>647</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Lifecycle Manager</string>
   </property>
-  <widget class="QGroupBox" name="groupLifecyleNodeList">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>201</width>
-     <height>371</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Node List</string>
-   </property>
-   <widget class="QScrollArea" name="lifecycleNodeList">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>40</y>
-      <width>161</width>
-      <height>281</height>
-     </rect>
-    </property>
-    <property name="widgetResizable">
-     <bool>true</bool>
-    </property>
-    <widget class="QWidget" name="scrollAreaWidgetContents">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>159</width>
-       <height>279</height>
-      </rect>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayoutActions">
+     <item>
+      <widget class="QPushButton" name="pushConfigureObj">
+       <property name="text">
+        <string>Configure</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushActivateObj">
+       <property name="text">
+        <string>Activate</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushCleanObj">
+       <property name="text">
+        <string>Clean Up</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushDeactivateObj">
+       <property name="text">
+        <string>Deactivate</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushShutdownObj">
+       <property name="text">
+        <string>Shutdown</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayoutNodeList">
+     <item>
+      <widget class="QScrollArea" name="lifecycleNodeList">
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>226</width>
+          <height>290</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushRefresh">
+       <property name="text">
+        <string>Refresh</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGraphicsView" name="graphicsViewObj">
+     <property name="renderHints">
+      <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
+     </property>
+     <property name="resizeAnchor">
+      <enum>QGraphicsView::AnchorViewCenter</enum>
      </property>
     </widget>
-   </widget>
-   <widget class="QPushButton" name="pushRefresh">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>340</y>
-      <width>89</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Refresh</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGraphicsView" name="graphicsViewObj">
-   <property name="geometry">
-    <rect>
-     <x>230</x>
-     <y>110</y>
-     <width>761</width>
-     <height>551</height>
-    </rect>
-   </property>
-   <property name="renderHints">
-    <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
-   </property>
-   <property name="resizeAnchor">
-    <enum>QGraphicsView::AnchorViewCenter</enum>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushConfigureObj">
-   <property name="geometry">
-    <rect>
-     <x>230</x>
-     <y>30</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Configure</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushActivateObj">
-   <property name="geometry">
-    <rect>
-     <x>340</x>
-     <y>30</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Activate</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushDeactivateObj">
-   <property name="geometry">
-    <rect>
-     <x>340</x>
-     <y>70</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Deactivate</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushShutdownObj">
-   <property name="geometry">
-    <rect>
-     <x>450</x>
-     <y>30</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Shutdown</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushCleanObj">
-   <property name="geometry">
-    <rect>
-     <x>230</x>
-     <y>70</y>
-     <width>89</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Clean Up</string>
-   </property>
-  </widget>
-  <widget class="QTextBrowser" name="stateInfoObj">
-   <property name="geometry">
-    <rect>
-     <x>450</x>
-     <y>70</y>
-     <width>91</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
