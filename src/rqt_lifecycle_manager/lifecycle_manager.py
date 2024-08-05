@@ -5,35 +5,16 @@ from PIL import Image
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python import get_resource
 
-from python_qt_binding import loadUi, QtGui, QtCore
+from python_qt_binding import loadUi, QtGui
 from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtWidgets import QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
+from python_qt_binding.QtWidgets import QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QListWidget, QListWidgetItem
+
+from .interactive_graphics_view import ZoomableGraphicsView
 
 import rclpy
 from rclpy.node import Node
 
 from rqt_gui_py.plugin import Plugin
-
-
-class GraphicsView(QGraphicsView):
-
-    def __init__(self, parent=None):
-        super(GraphicsView, self).__init__(parent)
-        self.setRenderHint(QtGui.QPainter.Antialiasing)
-        self.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
-        self.setDragMode(QGraphicsView.ScrollHandDrag)
-
-    def wheelEvent(self, event):
-        zoom_in_factor = 1.25
-        zoom_out_factor = 1 / zoom_in_factor
-
-        if event.angleDelta().y() > 0:
-            zoom_factor = zoom_in_factor
-        else:
-            zoom_factor = zoom_out_factor
-
-        self.scale(zoom_factor, zoom_factor)
-
 
 class RosLifecycleManager(Plugin):
 
@@ -56,6 +37,10 @@ class RosLifecycleManager(Plugin):
 
         context.add_widget(self._widget)
 
+        # Replace QGraphicsView with ZoomableGraphicsView
+        self.graphicsViewObj = ZoomableGraphicsView(self._widget.graphicsViewObj)
+        self._widget.graphicsViewObj = self.graphicsViewObj
+
         self._widget.pushRefresh.clicked.connect(self._refresh_lc_node_list)
         self._widget.pushConfigureObj.clicked.connect(self._configure_lc_node)
         self._widget.pushActivateObj.clicked.connect(self._activate_lc_node)
@@ -65,9 +50,7 @@ class RosLifecycleManager(Plugin):
 
         self.node_list = []
 
-        self.scene = QGraphicsScene()
-        self.graphics_view = GraphicsView(self._widget.graphicsViewObj)
-        self.graphics_view.setScene(self.scene)
+        self.scene = self.graphicsViewObj._scene
         self.draw_state_machine()
 
     def draw_state_machine(self):
@@ -138,7 +121,11 @@ class RosLifecycleManager(Plugin):
         self.node_list = ['node1', 'node2', 'node3']
         self._widget.lifecycleNodeList.clear()
         for node_name in self.node_list:
-            self._widget.lifecycleNodeList.addItem(node_name)
+            item = QListWidgetItem(node_name)
+            self._widget.lifecycleNodeList.addItem(item)
+        
+        # Redraw the state machine diagram
+        self.draw_state_machine()
 
     def get_selected_node(self):
         selected_items = self._widget.lifecycleNodeList.selectedItems()

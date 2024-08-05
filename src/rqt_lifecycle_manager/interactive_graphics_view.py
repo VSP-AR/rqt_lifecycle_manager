@@ -33,6 +33,8 @@ from __future__ import division
 from python_qt_binding.QtCore import QPointF, QRectF, Qt
 from python_qt_binding.QtGui import QTransform
 from python_qt_binding.QtWidgets import QGraphicsView
+from python_qt_binding import loadUi, QtGui
+from python_qt_binding.QtWidgets import QGraphicsView, QGraphicsScene
 
 
 class InteractiveGraphicsView(QGraphicsView):
@@ -106,3 +108,36 @@ class InteractiveGraphicsView(QGraphicsView):
             pointC = self.mapToScene((pointf + QPointF(0.5, -0.5)).toPoint())
             pointD = self.mapToScene((pointf + QPointF(0.5, 0.5)).toPoint())
             return (pointA + pointB + pointC + pointD) / 4.0
+
+
+class ZoomableGraphicsView(QGraphicsView):
+    def __init__(self, parent=None):
+        super(ZoomableGraphicsView, self).__init__(parent)
+        self._zoom = 0
+        self._scene = QGraphicsScene(self)
+        self.setScene(self._scene)
+        self.setDragMode(QGraphicsView.ScrollHandDrag)
+        self.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        self.setRenderHint(QtGui.QPainter.HighQualityAntialiasing, True)
+        self.setRenderHint(QtGui.QPainter.SmoothPixmapTransform, True)
+
+    def wheelEvent(self, event):
+        zoomInFactor = 1.25
+        zoomOutFactor = 1 / zoomInFactor
+
+        if event.angleDelta().y() > 0:
+            zoomFactor = zoomInFactor
+            self._zoom += 1
+        else:
+            zoomFactor = zoomOutFactor
+            self._zoom -= 1
+
+        if self._zoom > 0:
+            self.scale(zoomFactor, zoomFactor)
+        elif self._zoom == 0:
+            self.resetTransform()
+        else:
+            self._zoom = 0
+
+        event.accept()
+
