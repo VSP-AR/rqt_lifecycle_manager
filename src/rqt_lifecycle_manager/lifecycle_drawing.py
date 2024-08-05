@@ -21,11 +21,11 @@ class LifecycleDrawing:
     def create_dot_graph(self, current_state=None, transition_state=None):
         dot = pydot.Dot(graph_type='digraph')
 
-        # Define default colors
-        default_color = 'white'
-        transition_color = 'yellow'
-        success_color = 'green'
-        failure_color = 'red'
+        # Define colors with hexadecimal values
+        default_color = '#FFFFFF'  # White
+        transition_color = '#FFFF00'  # Yellow
+        success_color = '#00FF00'  # Green
+        failure_color = '#FF0000'  # Red
 
         # Primary states with default colors and shapes (box)
         primary_states = {
@@ -103,6 +103,6 @@ class LifecycleDrawing:
     def pil2pixmap(self, image):
         image = image.convert("RGBA")
         data = image.tobytes("raw", "RGBA")
-        qimage = QImage(data, image.width, image.height, QImage.Format_ARGB32)
+        qimage = QImage(data, image.width, image.height, QImage.Format_RGB32)
         pixmap = QPixmap.fromImage(qimage)
         return pixmap
