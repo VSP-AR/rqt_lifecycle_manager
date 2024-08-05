@@ -1,16 +1,14 @@
 import os
-import pydot
-from io import BytesIO
-from PIL import Image
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python import get_resource
 
 from python_qt_binding import loadUi, QtGui
 from python_qt_binding.QtCore import Qt
-from python_qt_binding.QtWidgets import QWidget, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QListWidget, QListWidgetItem
+from python_qt_binding.QtWidgets import QWidget, QListWidget, QListWidgetItem
 
 from .interactive_graphics_view import ZoomableGraphicsView
 from .lifecycle.node_manager import LifecycleNodeListNodeManager
+from .lifecycle_drawing import LifecycleDrawing
 
 import rclpy
 from rclpy.node import Node
@@ -51,86 +49,25 @@ class RosLifecycleManager(Plugin):
 
         self.node_list = []
 
-        self.scene = self.graphicsViewObj._scene
-        self.draw_state_machine()
-        
         # Initialize the node manager
         self.node_manager = LifecycleNodeListNodeManager(self._node, self._logger)
 
-    def draw_state_machine(self):
-        self.scene.clear()
-        dot = self.create_dot_graph()
-        png_str = dot.create_png()
-        image = Image.open(BytesIO(png_str))
-        image_qt = self.pil2pixmap(image)
-        pixmap_item = QGraphicsPixmapItem(image_qt)
-        self.scene.addItem(pixmap_item)
+        # Initialize the drawing manager
+        self.drawing_manager = LifecycleDrawing()
 
-    def create_dot_graph(self):
-        dot = pydot.Dot(graph_type='digraph')
+        # Connect item selection change signal to the slot
+        self._widget.lifecycleNodeList.itemSelectionChanged.connect(self._on_node_selection_changed)
 
-        # States with colors and shapes
-        states = {
-            'Unconfigured': ('green', 'box'),
-            'Inactive': ('green', 'box'),
-            'Active': ('green', 'box'),
-            'Finalized': ('green', 'box'),
-            'Configuring': ('yellow', 'box'),
-            'CleaningUp': ('yellow', 'box'),
-            'ShuttingDown': ('yellow', 'box'),
-            'ErrorProcessing': ('red', 'box'),
-            'Activating': ('yellow', 'ellipse'),  # Oval shape for "Activating"
-            'Deactivating': ('yellow', 'box')
-        }
-
-        for state, (color, shape) in states.items():
-            node = pydot.Node(state, style='filled', fillcolor=color, shape=shape)
-            dot.add_node(node)
-
-        # Transitions
-        transitions = [
-            ('Unconfigured', 'Configuring'),
-            ('Configuring', 'Inactive'),
-            ('Inactive', 'Activating'),
-            ('Activating', 'Active'),
-            ('Active', 'Deactivating'),
-            ('Deactivating', 'Inactive'),
-            ('Inactive', 'CleaningUp'),
-            ('CleaningUp', 'Unconfigured'),
-            ('Inactive', 'ShuttingDown'),
-            ('Active', 'ShuttingDown'),
-            ('ShuttingDown', 'Finalized'),
-            ('Configuring', 'ErrorProcessing'),
-            ('Activating', 'ErrorProcessing'),
-            ('Deactivating', 'ErrorProcessing'),
-            ('CleaningUp', 'ErrorProcessing'),
-            ('ShuttingDown', 'ErrorProcessing')
-        ]
-
-        for from_state, to_state in transitions:
-            edge = pydot.Edge(from_state, to_state)
-            dot.add_edge(edge)
-
-        return dot
-
-    def pil2pixmap(self, image):
-        image = image.convert("RGBA")
-        data = image.tobytes("raw", "RGBA")
-        qimage = QtGui.QImage(data, image.width, image.height, QtGui.QImage.Format_ARGB32)
-        pixmap = QtGui.QPixmap.fromImage(qimage)
-        return pixmap
+    def draw_state_machine(self, current_state=None, transition_state=None):
+        scene = self.drawing_manager.draw_state_machine(current_state, transition_state)
+        self.graphicsViewObj.setScene(scene)
 
     def _refresh_lc_node_list(self):
-        # Dummy implementation for refreshing the node list
         self.node_list = self.node_manager.list_lifecycle_nodes()
         self._widget.lifecycleNodeList.clear()
         for node_name in self.node_list:
-            print(f'Adding node to the list {node_name}')
             item = QListWidgetItem(node_name)
             self._widget.lifecycleNodeList.addItem(item)
-        
-        # Redraw the state machine diagram
-        self.draw_state_machine()
 
     def get_selected_node(self):
         selected_items = self._widget.lifecycleNodeList.selectedItems()
@@ -138,40 +75,57 @@ class RosLifecycleManager(Plugin):
             return selected_items[0].text()
         return None
 
+    def _on_node_selection_changed(self):
+        node_name = self.get_selected_node()
+        if node_name:
+            state = self.node_manager.get_lifecycle_state(node_name)
+            self._node.get_logger().info(f'Selected node {node_name} is in state: {state.label}')
+            self.draw_state_machine(current_state=state.label)
+
     def _configure_lc_node(self):
         node_name = self.get_selected_node()
         if node_name:
             self._node.get_logger().info(f'Configuring {node_name}')
-            self.draw_state_machine()
-            self.node_manager.set_lifecycle_state(node_name, transition_label='configure')
+            self.draw_state_machine('Configuring', 'in-progress')
+            result = self.node_manager.set_lifecycle_state(node_name, transition_label='configure')
+            transition_state = 'success' if result else 'failed'
+            self.draw_state_machine('Configuring', transition_state)
 
     def _activate_lc_node(self):
         node_name = self.get_selected_node()
         if node_name:
             self._node.get_logger().info(f'Activating {node_name}')
-            self.draw_state_machine()
-            self.node_manager.set_lifecycle_state(node_name, transition_label='activate')
+            self.draw_state_machine('Activating', 'in-progress')
+            result = self.node_manager.set_lifecycle_state(node_name, transition_label='activate')
+            transition_state = 'success' if result else 'failed'
+            self.draw_state_machine('Activating', transition_state)
 
     def _deactivate_lc_node(self):
         node_name = self.get_selected_node()
         if node_name:
             self._node.get_logger().info(f'Deactivating {node_name}')
-            self.draw_state_machine()
-            self.node_manager.set_lifecycle_state(node_name, transition_label='deactivate')
+            self.draw_state_machine('Deactivating', 'in-progress')
+            result = self.node_manager.set_lifecycle_state(node_name, transition_label='deactivate')
+            transition_state = 'success' if result else 'failed'
+            self.draw_state_machine('Deactivating', transition_state)
 
     def _shutdown_lc_node(self):
         node_name = self.get_selected_node()
         if node_name:
             self._node.get_logger().info(f'Shutting down {node_name}')
-            self.draw_state_machine()
-            self.node_manager.set_lifecycle_state(node_name, transition_label='shutdown')
+            self.draw_state_machine('ShuttingDown', 'in-progress')
+            result = self.node_manager.set_lifecycle_state(node_name, transition_label='shutdown')
+            transition_state = 'success' if result else 'failed'
+            self.draw_state_machine('ShuttingDown', transition_state)
 
     def _cleanup_lc_node(self):
         node_name = self.get_selected_node()
         if node_name:
             self._node.get_logger().info(f'Cleaning up {node_name}')
-            self.draw_state_machine()
-            self.node_manager.set_lifecycle_state(node_name, transition_label='cleanup')
+            self.draw_state_machine('CleaningUp', 'in-progress')
+            result = self.node_manager.set_lifecycle_state(node_name, transition_label='cleanup')
+            transition_state = 'success' if result else 'failed'
+            self.draw_state_machine('CleaningUp', transition_state)
 
     def shutdown_plugin(self):
         self._node.destroy_node()
