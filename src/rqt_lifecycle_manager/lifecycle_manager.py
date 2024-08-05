@@ -38,7 +38,7 @@ class RosLifecycleManager(Plugin):
 
         # Replace QGraphicsView with ZoomableGraphicsView
         self.graphicsViewObj = ZoomableGraphicsView(self._widget.graphicsViewObj)
-        self._widget.graphicsViewObj = self.graphicsViewObj
+        self._widget.graphicsView = self.graphicsViewObj
 
         self._widget.pushRefresh.clicked.connect(self._refresh_lc_node_list)
         self._widget.pushConfigureObj.clicked.connect(self._configure_lc_node)
@@ -54,15 +54,18 @@ class RosLifecycleManager(Plugin):
 
         # Initialize the drawing manager
         self.drawing_manager = LifecycleDrawing()
+        self.draw_state_machine()
 
         # Connect item selection change signal to the slot
         self._widget.lifecycleNodeList.itemSelectionChanged.connect(self._on_node_selection_changed)
 
     def draw_state_machine(self, current_state=None, transition_state=None):
+        self._logger.info(f'Drawing state machine: current_state={current_state}, transition_state={transition_state}')
         scene = self.drawing_manager.draw_state_machine(current_state, transition_state)
         self.graphicsViewObj.setScene(scene)
 
     def _refresh_lc_node_list(self):
+        self._logger.info('Refreshing lifecycle node list')
         self.node_list = self.node_manager.list_lifecycle_nodes()
         self._widget.lifecycleNodeList.clear()
         for node_name in self.node_list:
@@ -72,6 +75,7 @@ class RosLifecycleManager(Plugin):
     def get_selected_node(self):
         selected_items = self._widget.lifecycleNodeList.selectedItems()
         if selected_items:
+            self._logger.info(f'Selected node: {selected_items[0].text()}')
             return selected_items[0].text()
         return None
 
@@ -79,8 +83,8 @@ class RosLifecycleManager(Plugin):
         node_name = self.get_selected_node()
         if node_name:
             state = self.node_manager.get_lifecycle_state(node_name)
-            self._node.get_logger().info(f'Selected node {node_name} is in state: {state.label}')
-            self.draw_state_machine(current_state=state.label)
+            self._logger.info(f'Selected node {node_name} is in state: {state.label}')
+            self.draw_state_machine(current_state=state.label, transition_state='success')
 
     def _configure_lc_node(self):
         node_name = self.get_selected_node()
@@ -88,8 +92,13 @@ class RosLifecycleManager(Plugin):
             self._node.get_logger().info(f'Configuring {node_name}')
             self.draw_state_machine('Configuring', 'in-progress')
             result = self.node_manager.set_lifecycle_state(node_name, transition_label='configure')
-            transition_state = 'success' if result else 'failed'
-            self.draw_state_machine('Configuring', transition_state)
+            state = self.node_manager.get_lifecycle_state(node_name)
+            
+            if result:
+                self.draw_state_machine(state.label, 'success')
+            else:
+                self.draw_state_machine(state.label, 'failed')
+                
 
     def _activate_lc_node(self):
         node_name = self.get_selected_node()
@@ -98,7 +107,8 @@ class RosLifecycleManager(Plugin):
             self.draw_state_machine('Activating', 'in-progress')
             result = self.node_manager.set_lifecycle_state(node_name, transition_label='activate')
             transition_state = 'success' if result else 'failed'
-            self.draw_state_machine('Activating', transition_state)
+            state = self.node_manager.get_lifecycle_state(node_name)
+            self.draw_state_machine(state.label, transition_state)
 
     def _deactivate_lc_node(self):
         node_name = self.get_selected_node()
@@ -107,7 +117,8 @@ class RosLifecycleManager(Plugin):
             self.draw_state_machine('Deactivating', 'in-progress')
             result = self.node_manager.set_lifecycle_state(node_name, transition_label='deactivate')
             transition_state = 'success' if result else 'failed'
-            self.draw_state_machine('Deactivating', transition_state)
+            state = self.node_manager.get_lifecycle_state(node_name)
+            self.draw_state_machine(state.label, transition_state)
 
     def _shutdown_lc_node(self):
         node_name = self.get_selected_node()
@@ -116,7 +127,8 @@ class RosLifecycleManager(Plugin):
             self.draw_state_machine('ShuttingDown', 'in-progress')
             result = self.node_manager.set_lifecycle_state(node_name, transition_label='shutdown')
             transition_state = 'success' if result else 'failed'
-            self.draw_state_machine('ShuttingDown', transition_state)
+            state = self.node_manager.get_lifecycle_state(node_name)
+            self.draw_state_machine(state.label, transition_state)
 
     def _cleanup_lc_node(self):
         node_name = self.get_selected_node()
@@ -125,7 +137,8 @@ class RosLifecycleManager(Plugin):
             self.draw_state_machine('CleaningUp', 'in-progress')
             result = self.node_manager.set_lifecycle_state(node_name, transition_label='cleanup')
             transition_state = 'success' if result else 'failed'
-            self.draw_state_machine('CleaningUp', transition_state)
+            state = self.node_manager.get_lifecycle_state(node_name)
+            self.draw_state_machine(state.label, transition_state)
 
     def shutdown_plugin(self):
         self._node.destroy_node()

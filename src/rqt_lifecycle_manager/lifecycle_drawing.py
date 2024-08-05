@@ -21,38 +21,72 @@ class LifecycleDrawing:
     def create_dot_graph(self, current_state=None, transition_state=None):
         dot = pydot.Dot(graph_type='digraph')
 
-        # States with colors and shapes
-        states = {
-            'Unconfigured': ('green', 'box'),
-            'Inactive': ('green', 'box'),
-            'Active': ('green', 'box'),
-            'Finalized': ('green', 'box'),
-            'Configuring': ('yellow', 'box'),
-            'CleaningUp': ('yellow', 'box'),
-            'ShuttingDown': ('yellow', 'box'),
-            'ErrorProcessing': ('red', 'box'),
-            'Activating': ('yellow', 'ellipse'),  # Oval shape for "Activating"
-            'Deactivating': ('yellow', 'box')
+        # Define default colors
+        default_color = 'white'
+        transition_color = 'yellow'
+        success_color = 'green'
+        failure_color = 'red'
+
+        # Primary states with default colors and shapes (box)
+        primary_states = {
+            'unconfigured': default_color,
+            'inactive': default_color,
+            'active': default_color,
+            'finalized': default_color
         }
 
-        for state, (color, shape) in states.items():
-            fillcolor = 'red' if state == current_state and transition_state == 'failed' else color
-            node = pydot.Node(state, style='filled', fillcolor=fillcolor, shape=shape)
+        # Transition states with default colors and shapes (ellipse)
+        transition_states = {
+            'Configuring': default_color,
+            'CleaningUp': default_color,
+            'ShuttingDown': default_color,
+            'Activating': default_color,
+            'Deactivating': default_color,
+            'ErrorProcessing': default_color
+        }
+
+        # Add primary states
+        for state, color in primary_states.items():
+            fillcolor = color
+            if state == current_state:
+                if transition_state == 'in-progress':
+                    fillcolor = transition_color
+                elif transition_state == 'success':
+                    fillcolor = success_color
+                elif transition_state == 'failed':
+                    fillcolor = failure_color
+            node = pydot.Node(state, style='filled', fillcolor=fillcolor, shape='box')
+            dot.add_node(node)
+
+        # Add transition states
+        for state, color in transition_states.items():
+            fillcolor = color
+            if state == current_state:
+                if transition_state == 'in-progress':
+                    fillcolor = transition_color
+                elif transition_state == 'success':
+                    fillcolor = success_color
+                elif transition_state == 'failed':
+                    fillcolor = failure_color
+            node = pydot.Node(state, style='filled', fillcolor=fillcolor, shape='ellipse')
             dot.add_node(node)
 
         # Transitions
         transitions = [
-            ('Unconfigured', 'Configuring'),
-            ('Configuring', 'Inactive'),
-            ('Inactive', 'Activating'),
-            ('Activating', 'Active'),
-            ('Active', 'Deactivating'),
-            ('Deactivating', 'Inactive'),
-            ('Inactive', 'CleaningUp'),
-            ('CleaningUp', 'Unconfigured'),
-            ('Inactive', 'ShuttingDown'),
-            ('Active', 'ShuttingDown'),
-            ('ShuttingDown', 'Finalized'),
+            ('unconfigured', 'Configuring'),
+            ('Configuring', 'inactive'),
+            ('inactive', 'Activating'),
+            ('Activating', 'active'),
+            ('active', 'Deactivating'),
+            ('Deactivating', 'inactive'),
+            ('inactive', 'CleaningUp'),
+            ('CleaningUp', 'unconfigured'),
+            ('unconfigured', 'ErrorProcessing'),
+            ('ErrorProcessing', 'finalized'),
+            ('inactive', 'ShuttingDown'),
+            ('ShuttingDown', 'finalized'),
+            ('active', 'ShuttingDown'),
+            ('ShuttingDown', 'finalized'),
             ('Configuring', 'ErrorProcessing'),
             ('Activating', 'ErrorProcessing'),
             ('Deactivating', 'ErrorProcessing'),
