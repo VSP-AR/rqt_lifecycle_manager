@@ -4,24 +4,6 @@ from PIL import Image
 from python_qt_binding.QtGui import QPixmap, QImage
 from python_qt_binding.QtWidgets import QGraphicsScene, QGraphicsPixmapItem
 
-def draw_state_machine(self, current_state=None, transition_state=None):
-    self.scene.clear()
-    dot = self.create_dot_graph(current_state, transition_state)
-
-    # DEBUG: Print the DOT source code
-    print("DOT SOURCE:")
-    print(dot.to_string())
-
-    try:
-        png_str = dot.create_png()
-        image = Image.open(BytesIO(png_str))
-        image_qt = self.pil2pixmap(image)
-        pixmap_item = QGraphicsPixmapItem(image_qt)
-        self.scene.addItem(pixmap_item)
-    except Exception as e:
-        print("Error rendering state machine image:", e)
-
-    return self.scene
 class LifecycleDrawing:
     def __init__(self):
         self.scene = QGraphicsScene()
@@ -53,7 +35,6 @@ class LifecycleDrawing:
             'active': default_color,
             'finalized': default_color
         }
-       
 
         # Transition states: ellipse shape
         transition_states = {
