@@ -19,34 +19,34 @@ class LifecycleDrawing:
         return self.scene
 
     def create_dot_graph(self, current_state=None, transition_state=None):
-        # Set graph direction left-to-right
-        dot = pydot.Dot(graph_type='digraph', rankdir='LR')
+        dot = pydot.Dot(graph_type='digraph')
 
-        # Define colors with hexadecimal values
-        default_color = '#FFFFFF'     # White
-        transition_color = '#FFFF00'  # Yellow
-        success_color = '#00FF00'     # Green
-        failure_color = '#FF0000'     # Red
+        
 
-        # Primary states: box shape
+        # Primary states with default colors and shapes (box)
         primary_states = {
-            'unconfigured': default_color,
-            'inactive': default_color,
-            'active': default_color,
-            'finalized': default_color
+            'unconfigured': '#add8e6',    
+            'inactive': '#add8e6',      
+            'active': '#add8e6',          
+            'finalized': '#add8e6'        
         }
 
-        # Transition states: ellipse shape
+        # Transition states with default colors and shapes (ellipse)
         transition_states = {
-            'Configuring': default_color,
-            'Activating': default_color,
-            'Deactivating': default_color,
-            'CleaningUp': default_color,
-            'ShuttingDown': default_color,
-            'ErrorProcessing': default_color
+           'configuring': '#FFFFE0',
+            'activating': '#FFFFE0',
+            'deactivating': '#FFFFE0',
+            'cleaningup': '#FFFFE0',
+            'shuttingdown': '#FFFFE0',
+            'errorprocessing': '#FFFFE0'
         }
+        
+         # Highlighting colors
+        transition_color = '#90ee90'
+        success_color = '#90ee90'
+        failure_color = '#90ee90'
 
-        # Add primary state nodes
+        # Add primary states
         for state, color in primary_states.items():
             fillcolor = color
             if state == current_state:
@@ -56,11 +56,10 @@ class LifecycleDrawing:
                     fillcolor = success_color
                 elif transition_state == 'failed':
                     fillcolor = failure_color
-            node = pydot.Node(state, style='filled', fillcolor=fillcolor,
-                              shape='box', fontname='Helvetica', fontsize='10')
+            node = pydot.Node(state, style='filled', fillcolor=fillcolor, shape='box')
             dot.add_node(node)
 
-        # Add transition state nodes
+        # Add transition states
         for state, color in transition_states.items():
             fillcolor = color
             if state == current_state:
@@ -70,35 +69,34 @@ class LifecycleDrawing:
                     fillcolor = success_color
                 elif transition_state == 'failed':
                     fillcolor = failure_color
-            node = pydot.Node(state, style='filled', fillcolor=fillcolor,
-                              shape='ellipse', fontname='Helvetica', fontsize='10')
+            node = pydot.Node(state, style='filled', fillcolor=fillcolor, shape='ellipse')
             dot.add_node(node)
 
-        # Labeled transitions matching the official lifecycle
+        # Transitions
         transitions = [
-            ('unconfigured', 'Configuring', 'configure()'),
-            ('Configuring', 'inactive', 'on_configure() success'),
-            ('inactive', 'Activating', 'activate()'),
-            ('Activating', 'active', 'on_activate() success'),
-            ('active', 'Deactivating', 'deactivate()'),
-            ('Deactivating', 'inactive', 'on_deactivate() success'),
-            ('inactive', 'CleaningUp', 'cleanup()'),
-            ('CleaningUp', 'unconfigured', 'on_cleanup() success'),
-            ('inactive', 'ShuttingDown', 'shutdown()'),
-            ('active', 'ShuttingDown', 'shutdown()'),
-            ('ShuttingDown', 'finalized', 'on_shutdown() success'),
-            ('Configuring', 'ErrorProcessing', 'on_configure() fail'),
-            ('Activating', 'ErrorProcessing', 'on_activate() fail'),
-            ('Deactivating', 'ErrorProcessing', 'on_deactivate() fail'),
-            ('CleaningUp', 'ErrorProcessing', 'on_cleanup() fail'),
-            ('ShuttingDown', 'ErrorProcessing', 'on_shutdown() fail'),
-            ('unconfigured', 'ErrorProcessing', 'error()'),
-            ('ErrorProcessing', 'finalized', 'on_error()')
+            ('unconfigured', 'Configuring'),
+            ('Configuring', 'inactive'),
+            ('inactive', 'Activating'),
+            ('Activating', 'active'),
+            ('active', 'Deactivating'),
+            ('Deactivating', 'inactive'),
+            ('inactive', 'CleaningUp'),
+            ('CleaningUp', 'unconfigured'),
+            ('unconfigured', 'ErrorProcessing'),
+            ('ErrorProcessing', 'finalized'),
+            ('inactive', 'ShuttingDown'),
+            ('ShuttingDown', 'finalized'),
+            ('active', 'ShuttingDown'),
+            ('ShuttingDown', 'finalized'),
+            ('Configuring', 'ErrorProcessing'),
+            ('Activating', 'ErrorProcessing'),
+            ('Deactivating', 'ErrorProcessing'),
+            ('CleaningUp', 'ErrorProcessing'),
+            ('ShuttingDown', 'ErrorProcessing')
         ]
 
-        for from_state, to_state, label in transitions:
-            edge = pydot.Edge(from_state, to_state, label=label,
-                              fontname='Helvetica', fontsize='9')
+        for from_state, to_state in transitions:
+            edge = pydot.Edge(from_state, to_state)
             dot.add_edge(edge)
 
         return dot
