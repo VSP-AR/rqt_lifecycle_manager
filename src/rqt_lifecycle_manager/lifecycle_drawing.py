@@ -21,30 +21,28 @@ class LifecycleDrawing:
     def create_dot_graph(self, current_state=None, transition_state=None):
         dot = pydot.Dot(graph_type='digraph')
 
-        
-
-        # Primary states with default colors and shapes (box)
+        # Define colors with hexadecimal values
+        default_color = '#FFFFFF'  # White
+        transition_color = '#FFFF00'  # Yellow
+        success_color = '#00FF00'  # Green
+        failure_color = '#FF0000'  # Red
+        # Primary states with light blue fill
         primary_states = {
-            'unconfigured': '#add8e6',    
-            'inactive': '#add8e6',      
-            'active': '#add8e6',          
-            'finalized': '#add8e6'        
+            'unconfigured': '#ADD8E6',   # light blue
+            'inactive': '#ADD8E6',
+            'active': '#ADD8E6',
+            'finalized': '#ADD8E6'
         }
 
-        # Transition states with default colors and shapes (ellipse)
+        # Transition states with light yellow fill
         transition_states = {
-           'configuring': '#FFFFE0',
-            'activating': '#FFFFE0',
-            'deactivating': '#FFFFE0',
-            'cleaningup': '#FFFFE0',
-            'shuttingdown': '#FFFFE0',
-            'errorprocessing': '#FFFFE0'
+            'Configuring': '#FFFFE0',    # light yellow
+            'CleaningUp': '#FFFFE0',
+            'ShuttingDown': '#FFFFE0',
+            'Activating': '#FFFFE0',
+            'Deactivating': '#FFFFE0',
+            'ErrorProcessing': '#FFFFE0'
         }
-        
-         # Highlighting colors
-        transition_color = '#90ee90'
-        success_color = '#90ee90'
-        failure_color = '#90ee90'
 
         # Add primary states
         for state, color in primary_states.items():
